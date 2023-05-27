@@ -206,11 +206,13 @@ def logout():
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
 
+
 def get_notifications():
     """
     Get the notifications for the current user.
     """
     return Notification.query.filter_by(user_id=current_user.id).order_by(Notification.timestamp.desc()).all()
+
 
 @app.route('/dashboard')
 @login_required
@@ -219,22 +221,14 @@ def dashboard():
     Display the dashboard for the logged-in user.
     """
     user_id = current_user.id
-
-    # Fetch the user's playlists
     playlists = Playlist.query.filter_by(listener_id=user_id).all()
-
-    # If user is an artist, fetch their albums
     if current_user.user_type == 'artist':
         artist_id = current_user.id 
         albums = Album.query.filter_by(artist_id=artist_id).all()
     else:
         albums = []
-
-    # Fetch the user's notifications
     notifications = get_notifications()
     return render_template('dashboard.html', playlists=playlists, albums=albums, notifications=notifications)
-
-
 
 
 @app.route('/')
@@ -251,7 +245,6 @@ def search():
     Perform a search for artists based on the search query.
     """
     search_query = request.form['search_query']
- 
     artists = Artist.query.filter((Artist.artist_stagename.ilike(f'%{search_query}%')) | (Artist.artist_tags.ilike(f'%{search_query}%'))).all()
     notifications = get_notifications()
     return render_template('search_results.html', artists=artists, notifications=notifications)
@@ -346,6 +339,7 @@ def unfollow_artist(artist_id):
     flash(f'You have unfollowed {artist.artist_stagename}.')
     return redirect(url_for('artist_page', artist_id=artist_id))
 
+
 @app.route('/delete_song/<int:song_id>', methods=['POST'])
 @login_required
 def delete_song(song_id):
@@ -358,10 +352,10 @@ def delete_song(song_id):
         return redirect(url_for('songs'))
     album = song.album
 
-    if current_user.user_type=='artist' and song.album.artist_id == current_user.user_id:
+    if current_user.user_type == 'artist' and song.album.artist_id == current_user.user_id:
         
         os.remove(song.file_path)
-        artist_id=album.artist_id
+        artist_id = album.artist_id
 
         db.session.delete(song)
         db.session.commit()
@@ -405,6 +399,7 @@ def delete_album_song(song_id):
 
     return redirect(url_for('album_songs', album_id=song.album_id))
 
+
 @app.route('/get_playlists')
 @login_required
 def get_playlists():
@@ -413,6 +408,7 @@ def get_playlists():
     """
     playlists = Playlist.query.filter_by(listener_id=current_user.id).all()
     return jsonify({'playlists': [{'id': p.playlist_id, 'title': p.playlist_title} for p in playlists]})
+
 
 @app.route("/add_to_playlist", methods=["POST"])
 @login_required
@@ -429,7 +425,6 @@ def add_to_playlist():
             flash('Playlist name cannot be empty.', 'danger')
             return redirect(request.referrer)
 
-        # Add the current timestamp when creating a new playlist
         new_playlist = Playlist(playlist_title=new_playlist_name, playlist_creation_date=datetime.now(), listener_id=current_user.id)
         db.session.add(new_playlist)
         db.session.commit()
@@ -456,9 +451,9 @@ def my_playlists():
     playlists = Playlist.query.filter_by(listener_id=current_user.id).all()
     for playlist in playlists:
         playlist.songs = [ps.song for ps in playlist.playlist_songs]
-    
     notifications = get_notifications()
     return render_template('my_playlists.html', playlists=playlists, notifications=notifications)
+
 
 @app.route('/delete_song_from_playlist', methods=['POST'])
 @login_required
@@ -542,11 +537,11 @@ def view_events(artist_id):
     """
     View the events for the given artist ID.
     """
-    # Fetching events directly from the Event model using a query
     events = Event.query.filter_by(artist_id=artist_id).order_by(Event.event_date).all()
     artist = Artist.query.get_or_404(artist_id)
     notifications = get_notifications()
     return render_template('view_events.html', artist_name=artist.artist_stagename, events=events, notifications=notifications)
+
 
 @app.route('/view-event/<int:event_id>', methods=['GET'])
 def view_event(event_id):
@@ -563,7 +558,6 @@ def view_event(event_id):
     return render_template('view_event.html', event=event, artist=artist, notifications=notifications)
 
 
-
 @app.route('/rsvp/<int:event_id>', methods=['POST'])
 def rsvp(event_id):
     """
@@ -571,9 +565,7 @@ def rsvp(event_id):
     """
     event = Event.query.get_or_404(event_id)
     user_id = current_user.id
-
     user_event = UserEvent.query.filter_by(user_id=user_id, event_id=event_id).first()
-
     if not user_event:
         user_event = UserEvent(user_id=user_id, event_id=event_id)
         db.session.add(user_event)
@@ -605,12 +597,8 @@ def read_notification(notification_id):
     Mark a notification as read.
     """
     notification = Notification.query.get_or_404(notification_id)
-
-    # Check if the current user is the owner of the notification
     if notification.user_id != current_user.id:
         abort(403)
-
-    # Mark the notification as read
     notification.read = True
     db.session.commit()
 

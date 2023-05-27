@@ -23,7 +23,9 @@ Methods:
     is_following(artist): Checks if the user is following a specific artist.
 
 """
-class User(UserMixin,db.Model):
+
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
     password = db.Column(db.String(120), nullable=False)
@@ -44,10 +46,12 @@ class User(UserMixin,db.Model):
         'polymorphic_identity': 'user',
         'polymorphic_on': type,
     }
+
     def is_following(self, artist):
         return str(artist.id) in self.followed_ids.split(',')
   
     ...
+
     def __repr__(self):
         return f'<User {self.username}>'
 
@@ -67,6 +71,8 @@ Attributes:
 Methods:
     is_following(artist): Checks if the user is following a specific artist.
 """
+
+
 class Artist(User):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
@@ -80,8 +86,10 @@ class Artist(User):
     __mapper_args__ = {
         'polymorphic_identity': 'artist',
     }
+
     def is_following(self, artist):
         return str(artist.id) in self.followed_ids.split(',')
+    
     def __repr__(self):
         return f'<Artist {self.artist_stagename}>'
     
@@ -93,14 +101,15 @@ Attributes:
     user_id (int): The user ID of the listener (foreign key to User model).
 
 """
-class Listener(User):
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
+
+class Listener(User):
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
 
     __mapper_args__ = {
         'polymorphic_identity': 'listener',
     }
+    
     def __repr__(self):
         return f'<Listener {self.first_name} {self.last_name}>'
     
@@ -119,6 +128,8 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the album.
 """
+
+
 class Album(db.Model):
     album_id = db.Column(db.Integer, primary_key=True)
     album_title = db.Column(db.String(80), nullable=False)
@@ -129,6 +140,7 @@ class Album(db.Model):
     songs = db.relationship('Song', backref='album', lazy=True)
     cover_art = db.Column(db.String(255), nullable=True)
     cover_name = db.Column(db.String(255), nullable=True)
+
     def __repr__(self):
         return f'<Album {self.album_title}>'
 
@@ -148,6 +160,8 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the event.
 """
+
+
 class Event(db.Model):
     event_id = db.Column(db.Integer, primary_key=True)
     event_title = db.Column(db.String(80), nullable=False)
@@ -201,6 +215,8 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the UserEvent relationship.
 """
+
+
 class UserEvent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), primary_key=True)
@@ -222,6 +238,7 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the playlist.
 """
+
 
 class Playlist(db.Model):
     playlist_id = db.Column(db.Integer, primary_key=True)
@@ -245,6 +262,8 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the ListenerSong relationship.
 """  
+
+
 class ListenerSong(db.Model):
     song_id = db.Column(db.Integer, db.ForeignKey('song.song_id'), primary_key=True)
     
@@ -264,6 +283,8 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the PlaylistSong relationship.
 """
+
+
 class PlaylistSong(db.Model):
     song_id = db.Column(db.Integer, db.ForeignKey('song.song_id'), primary_key=True)
     playlist_id = db.Column(db.Integer, db.ForeignKey('playlist.playlist_id'), primary_key=True)
@@ -288,6 +309,8 @@ Attributes:
 Methods:
     __repr__(): Returns a string representation of the notification.
 """   
+
+
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -297,7 +320,6 @@ class Notification(db.Model):
     read = db.Column(db.Boolean, nullable=False, default=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), nullable=True)
     event = db.relationship('Event', backref=db.backref('notifications', lazy=True))
-
 
     def __repr__(self):
         return f'<Notification {self.content}>'

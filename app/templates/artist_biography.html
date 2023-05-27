@@ -67,11 +67,7 @@
               <a href="/create-event"><img src="../static/nav_icons/events.png" /><span>Create Event</span></a>
             </li>
             {% endif %}
-            <!-- <li class="nav-link_listener">
-              <a href="/songs"
-                ><img src="../static/nav_icons/songs.png" /><span>Songs</span></a
-              >
-            </li> -->
+          
             <li class="nav-link_listener">
               <a href="{{ url_for('favorite_artists') }}"
                 ><img src="../static/nav_icons/artists.png" /><span
@@ -133,9 +129,7 @@
                         <a href="/create-event" class="nav-link-animation"><img src="/static/nav_icons/events.png" /><span>Create Event</span></a>
                     </div>
                     {% endif %}
-                    <!-- <div class="nav-link_listener">
-                        <a href="/songs" class="nav-link-animation"><img src="/static/nav_icons/songs.png" /><span>Songs</span></a>
-                    </div> -->
+                
                     <div class="nav-link_listener">
                         <a href="{{ url_for('favorite_artists') }}" class="nav-link-animation"><img src="/static/nav_icons/artists.png" /><span>Favorite
                                 Artists</span></a>
